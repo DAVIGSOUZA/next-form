@@ -1,3 +1,7 @@
+export type Make = 'ford' | 'fiat' | 'honda'
+
+export type VehicleAge = '0km' | 'used'
+
 export const formTemplate = {
   textfieldLabels: {
     name: 'nome',

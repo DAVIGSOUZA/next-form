@@ -1,17 +1,35 @@
-import { Autocomplete, Box, Button, Checkbox, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, Typography } from "@mui/material";
+import {
+  Autocomplete, 
+  Box,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  FormLabel,
+  Radio,
+  RadioGroup,
+  TextField,
+  Typography
+} from "@mui/material";
 import Layout from "../../../Components/Layout";
 import Link from "next/link";
-import { formTemplate } from "@/helpers/formTemplate";
+import { Make, VehicleAge, formTemplate } from "@/helpers/formTemplate";
 import { useForm } from "react-hook-form";
 import Output from "@/Components/Output";
 import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from 'zod'
 
+type FormData = {
+  name: string
+  email: string 
+  make: Make
+  vehicleAge: VehicleAge | null
+  features: string[]
+}
 
 export default function ReactHookFormZod() {
-  const { register, handleSubmit} = useForm()
-
   const [submittedData, setSubmittedData] = useState<any>(undefined)
-
+  
   const { 
     textfieldLabels,
     autocompleteOptions,
@@ -19,21 +37,26 @@ export default function ReactHookFormZod() {
     radioOptions 
   } = formTemplate
 
-  const submitForm = (data: any) => {
-    const features = []
 
-    const featureLabels = checkboxOptions.map(option => option.label)
+  const validationSchema = z.object({
+    name: z.string().nonempty({message: "Nome é requerido"}),
+    email: z.string().email({message: "Informe um email válido"}),
+    make: z.string().nonempty({message: 'Escolha uma marca'}),
+    vehicleAge: z.string({invalid_type_error: "Requerido"}),
+    features: z.string().array().optional()
+  }).transform(data => data as FormData)
+  
+  const { 
+    register,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<FormData>({
+    resolver: zodResolver(validationSchema)
+  })
 
-    for (const [key, value] of Object.entries(data)) {
-      if (featureLabels.includes(key) && value === true) {
-        const feature = checkboxOptions.find(option => option.label === key)
+  const submitForm = (data: FormData) => setSubmittedData({data})
 
-        features.push(feature?.value)
-      }
-    }
-
-    setSubmittedData({data, features})
-  }
+  const handleErrors = (error: any) => console.log(error)
 
   return (
     <Layout>
@@ -47,9 +70,15 @@ export default function ReactHookFormZod() {
             React Hook Form + Zod
           </Typography>
 
-          <TextField label={textfieldLabels.name} {...register("name")}/>
-
-          <TextField label={textfieldLabels.email} {...register("email")}/>
+          <div>
+            <TextField label={textfieldLabels.name} {...register("name")}/>
+            <p>{errors.name?.message}</p>
+          </div>
+          
+          <div>
+            <TextField label={textfieldLabels.email} {...register("email")}/>
+            <p>{errors.email?.message}</p>
+          </div>
 
           <Autocomplete 
             options={autocompleteOptions} 
@@ -57,6 +86,8 @@ export default function ReactHookFormZod() {
               <TextField {...params} label={textfieldLabels.make} {...register("make")}/>
             )}
           />
+          <p>{errors.make?.message}</p>
+
           
           <RadioGroup {...register("vehicleAge")}>
             {radioOptions.map(({label, value}) => (
@@ -68,6 +99,8 @@ export default function ReactHookFormZod() {
               />
             ))}
           </RadioGroup>
+          <p>{errors.vehicleAge?.message}</p>
+
 
           <FormLabel>Opcionais</FormLabel>
 
@@ -76,11 +109,17 @@ export default function ReactHookFormZod() {
               key={option.value}
               label={option.label}
               control={<Checkbox/>}
-              {...register(option.label)}
+              value={option.value}
+              {...register("features")}
             />
           ))}
 
-          <Button variant="contained" onClick={handleSubmit(submitForm)}> Submit </Button>
+          <Button 
+            variant="contained" 
+            onClick={handleSubmit(submitForm, handleErrors)}
+          > 
+            Submit
+          </Button>
         </Box>
         
         <Box width={'50%'} height={500} display={'flex'} flexDirection={'column'}>

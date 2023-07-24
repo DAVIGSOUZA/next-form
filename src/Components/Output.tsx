@@ -20,7 +20,6 @@ export default function Output({formData}: {formData: any}) {
           {JSON.stringify(formData)}
         </div>
 
-
         <Typography variant="h6" component="p" gutterBottom>
             Render Count: {renderCount}
         </Typography>
