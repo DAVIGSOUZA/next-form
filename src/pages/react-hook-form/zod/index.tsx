@@ -18,12 +18,13 @@ import Output from "@/Components/Output";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from 'zod'
+import ErrorMsg from "@/Components/ErrorMsg";
 
 type FormData = {
   name: string
   email: string 
   make: Make
-  vehicleAge: VehicleAge | null
+  vehicleAge: VehicleAge
   features: string[]
 }
 
@@ -72,12 +73,12 @@ export default function ReactHookFormZod() {
 
           <div>
             <TextField label={textfieldLabels.name} {...register("name")}/>
-            <p>{errors.name?.message}</p>
+            <ErrorMsg msg={errors.name?.message}/>
           </div>
           
           <div>
             <TextField label={textfieldLabels.email} {...register("email")}/>
-            <p>{errors.email?.message}</p>
+            <ErrorMsg msg={errors.email?.message}/>
           </div>
 
           <Autocomplete 
@@ -86,7 +87,7 @@ export default function ReactHookFormZod() {
               <TextField {...params} label={textfieldLabels.make} {...register("make")}/>
             )}
           />
-          <p>{errors.make?.message}</p>
+            <ErrorMsg msg={errors.make?.message}/>
 
           
           <RadioGroup {...register("vehicleAge")}>
@@ -99,7 +100,7 @@ export default function ReactHookFormZod() {
               />
             ))}
           </RadioGroup>
-          <p>{errors.vehicleAge?.message}</p>
+          <ErrorMsg msg={errors.vehicleAge?.message}/>
 
 
           <FormLabel>Opcionais</FormLabel>
