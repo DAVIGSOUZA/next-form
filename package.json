@@ -25,5 +25,9 @@
     "typescript": "5.1.6",
     "yup": "^1.2.0",
     "zod": "^3.21.4"
+  },
+  "devDependencies": {
+    "@next/bundle-analyzer": "^13.4.12",
+    "cross-env": "^7.0.3"
   }
 }
